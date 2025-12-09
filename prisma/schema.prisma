@@ -51,6 +51,8 @@ model Product {
   brand             String
   category          String
   inStock           Boolean
+  stock             Int     @default(0)
+  remainingStock    Int     @default(0)
   images            Image[]
   reviews           Review[]
 }
@@ -74,6 +76,8 @@ model Order {
   currency          String
   status            String
   deliveryStatus    String
+  paymentConfirmed  Boolean   @default(false)
+  paymentClaimed    Boolean   @default(false)
   createDate        DateTime  @default(now())
   paymentIntentId   String    @unique
   products          CartProductType[]
@@ -100,12 +104,24 @@ type Image {
 }
 
 type Address {
-  city String
-  country String
-  line1 String
-  line2 String?
-  postalCode String
-  state String
+  hostel String
+}
+
+model Settings {
+  id                String  @id @default("settings") @map("_id")
+  bankName          String
+  bankAccountNumber String
+  accountHolderName String
+  updatedAt         DateTime @updatedAt
+}
+
+model Notification {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  body       String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  orderId    String?  @db.ObjectId
 }
 
 enum Role {

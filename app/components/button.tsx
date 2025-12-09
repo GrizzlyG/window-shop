@@ -12,7 +12,8 @@ interface ButtonProps {
   custom?: string;
   isLoading?: boolean;
   icon?: IconType;
-  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  type?: "button" | "submit" | "reset";
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -24,10 +25,12 @@ const Button: React.FC<ButtonProps> = ({
   isLoading,
   icon: Icon,
   onClick,
+  type = "button",
 }) => {
   return (
     <button
       onClick={onClick}
+      type={type}
       disabled={disabled}
       className={`disabled:opacity-70 disabled:cursor-not-allowed rounded-md hover:opacity-80 w-full border-slate-700 flex items-center justify-center gap-2 active:scale-95 transition
       ${outline ? "bg-white" : "bg-slate-700"}

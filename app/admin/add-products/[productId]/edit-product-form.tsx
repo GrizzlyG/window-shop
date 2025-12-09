@@ -47,6 +47,7 @@ const EditProductForm = ({ product }: { product: Product }) => {
     setCustomValue("brand", product.brand);
     setCustomValue("category", product.category);
     setCustomValue("inStock", product.inStock);
+    setCustomValue("stock", (product as any).stock ?? (product as any).remainingStock ?? 0);
     setCustomValue("price", product.price);
     setCustomValue("list", product.list);
     setOldImages(product.images);
@@ -65,6 +66,7 @@ const EditProductForm = ({ product }: { product: Product }) => {
       brand: "",
       category: "",
       inStock: false,
+      stock: 0,
       images: [],
       price: "",
       list: "",
@@ -164,6 +166,11 @@ const EditProductForm = ({ product }: { product: Product }) => {
       ...data,
       images: mergedImages,
       list: list,
+      stock: data.stock !== undefined ? Number(data.stock) : undefined,
+      remainingStock:
+        data.remainingStock !== undefined
+          ? Number(data.remainingStock)
+          : undefined,
     };
 
     axios
@@ -230,6 +237,14 @@ const EditProductForm = ({ product }: { product: Product }) => {
         <Input
           id="list"
           label="List"
+          disabled={isLoading}
+          register={register}
+          errors={errors}
+          type="number"
+        />
+        <Input
+          id="stock"
+          label="Stock Quantity"
           disabled={isLoading}
           register={register}
           errors={errors}

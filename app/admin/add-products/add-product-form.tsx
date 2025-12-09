@@ -54,6 +54,7 @@ const AddProductForm = () => {
       brand: "",
       category: "",
       inStock: false,
+      stock: 0,
       images: [],
       price: "",
       list: "",
@@ -157,6 +158,7 @@ const AddProductForm = () => {
       ...data,
       images: uploadedImages,
       list: list,
+      stock: data.stock ? Number(data.stock) : 0,
     };
 
     axios
@@ -224,6 +226,14 @@ const AddProductForm = () => {
         <Input
           id="list"
           label="List"
+          disabled={isLoading}
+          register={register}
+          errors={errors}
+          type="number"
+        />
+        <Input
+          id="stock"
+          label="Stock Quantity"
           disabled={isLoading}
           register={register}
           errors={errors}

@@ -47,6 +47,7 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
         brand: product.brand,
         inStock: product.inStock,
         images: product.images,
+        stock: (product as any).remainingStock ?? (product as any).stock ?? 0,
       };
     });
   }
@@ -66,6 +67,31 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
         console.log(error);
       });
   }, []);
+
+  const handleStockEdit = useCallback(async (params: any) => {
+    // params: { id, field, value }
+    const id = params.id as string;
+    const newValue = Number(params.value);
+
+    if (Number.isNaN(newValue) || newValue < 0) {
+      toast.error("Invalid stock value");
+      router.refresh();
+      return;
+    }
+
+    try {
+      await axios.put(`/api/product/${id}`, {
+        remainingStock: newValue,
+      });
+
+      toast.success("Stock updated");
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to update stock", error);
+      toast.error("Failed to update stock");
+      router.refresh();
+    }
+  }, [router]);
 
   const handleDelete = useCallback(async (id: string, images: any[]) => {
     toast("Deleting product, please wait...");
@@ -138,6 +164,15 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
       },
     },
     {
+      field: "stock",
+      headerName: "Stock",
+      width: 120,
+      editable: true,
+      renderCell: (params) => {
+        return <div className="font-bold">{params.row.stock}</div>;
+      },
+    },
+    {
       field: "action",
       headerName: "Actions",
       width: 200,
@@ -194,6 +229,7 @@ const ManageProductsClient: React.FC<ManageProductsClientProps> = ({
           pageSizeOptions={[9, 20]}
           checkboxSelection
           disableRowSelectionOnClick
+          onCellEditCommit={handleStockEdit}
         />
       </div>
       <AlertDialog

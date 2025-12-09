@@ -60,8 +60,8 @@ const OrdersClient: React.FC<OrdersClient> = ({ orders }) => {
       return {
         id: order.id,
         customer: order.user.name,
-        amount: formatPrice(order.amount / 100),
-        paymentStatus: order.status,
+        amount: formatPrice(order.amount),
+        paymentStatus: order.paymentClaimed ? "complete" : "pending",
         date: moment(order.createDate).fromNow(),
         deliveryStatus: order.deliveryStatus,
       };

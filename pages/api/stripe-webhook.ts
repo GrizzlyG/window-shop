@@ -1,6 +1,5 @@
 import { buffer } from "micro";
 import { NextApiRequest, NextApiResponse } from "next";
-import Stripe from "stripe";
 import prisma from "@/libs/prismadb";
 
 export const config = {
@@ -9,54 +8,23 @@ export const config = {
   },
 };
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2023-10-16",
-});
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const buf = await buffer(req);
-  const sig = req.headers["stripe-signature"];
-
-  if (!sig) {
-    return res.status(400).send("Missing the stripe signature.");
+  // This webhook endpoint is disabled as Stripe is no longer used
+  // The application now uses a mock payment system
+  
+  if (req.method !== "POST") {
+    return res.status(405).send("Method not allowed");
   }
 
-  let event: Stripe.Event;
-
-  try {
-    event = stripe.webhooks.constructEvent(
-      buf,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
-  } catch (error) {
-    return res.status(400).send("Webhook error" + error);
-  }
-
-  switch (event.type) {
-    case "charge.succeeded":
-      const charge: any = event.data.object as Stripe.Charge;
-
-      if (typeof charge.payment_intent === "string") {
-        await prisma?.order.update({
-          where: { paymentIntentId: charge.payment_intent },
-          data: {
-            status: "complete",
-            address: {
-              city: charge.shipping?.address?.city,
-              country: charge.shipping?.address?.country,
-              line1: charge.shipping?.address?.line1,
-              line2: charge.shipping?.address?.line2,
-              postalCode: charge.shipping?.address?.postal_code,
-              state: charge.shipping?.address?.state,
-            },
-          },
-        });
-      }
-      break;
+  // Return success to prevent webhook retry loops if Stripe still tries to send events
+  return res.status(200).json({ 
+    received: true,
+    message: "Stripe webhooks are no longer processed. Using mock payment system."
+  });
+}
 
     default:
       console.log("Unhandled event type: " + event.type);

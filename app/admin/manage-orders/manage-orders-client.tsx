@@ -11,6 +11,7 @@ import {
   MdDeliveryDining,
   MdDone,
   MdRemoveRedEye,
+  MdPayments,
 } from "react-icons/md";
 import ActionButton from "@/app/components/action-button";
 import { useCallback, useState } from "react";
@@ -19,6 +20,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import moment from "moment";
 import AlertDialog from "@/app/components/alert-dialog";
+import Button from "@/app/components/button";
 
 type ExtendedOrder = Order & {
   user: User;
@@ -33,6 +35,8 @@ const ManageOrdersClient: React.FC<ManageOrdersClientProps> = ({ orders }) => {
   const [open, setOpen] = useState(false);
   const [nameToDelete, setNameToDelete] = useState("");
   const [orderToDelete, setOrderToDelete] = useState("");
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   let rows: any = [];
 
@@ -41,8 +45,9 @@ const ManageOrdersClient: React.FC<ManageOrdersClientProps> = ({ orders }) => {
       return {
         id: order.id,
         customer: order.user.name,
-        amount: formatPrice(order.amount / 100),
-        paymentStatus: order.status,
+        amount: formatPrice(order.amount),
+        paymentStatus: order.paymentClaimed ? "complete" : "pending",
+        paymentConfirmed: order.paymentConfirmed,
         date: moment(order.createDate).fromNow(),
         deliveryStatus: order.deliveryStatus,
       };
@@ -63,7 +68,7 @@ const ManageOrdersClient: React.FC<ManageOrdersClientProps> = ({ orders }) => {
         toast.error("Oops! Something went wrong.");
         console.log(error);
       });
-  }, []);
+  }, [router]);
 
   const handleDeliver = useCallback((id: string) => {
     axios
@@ -79,7 +84,74 @@ const ManageOrdersClient: React.FC<ManageOrdersClientProps> = ({ orders }) => {
         toast.error("Oops! Something went wrong.");
         console.log(error);
       });
-  }, []);
+  }, [router]);
+
+  const handleConfirmPayment = useCallback((id: string) => {
+    axios
+      .put(`/api/admin/order/${id}/confirm-payment`, {})
+      .then((res) => {
+        toast.success("Payment Confirmed.");
+        router.refresh();
+      })
+      .catch((error) => {
+        toast.error("Failed to confirm payment.");
+        console.log(error);
+      });
+  }, [router]);
+
+  const handleBatchDispatch = useCallback(async () => {
+    if (selectedRows.length === 0) {
+      toast.error("Please select at least one order.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await Promise.all(
+        selectedRows.map((id) =>
+          axios.put("/api/order", {
+            id,
+            deliveryStatus: "dispatched",
+          })
+        )
+      );
+      toast.success(`${selectedRows.length} order(s) dispatched!`);
+      setSelectedRows([]);
+      router.refresh();
+    } catch (error) {
+      toast.error("Failed to dispatch some orders.");
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedRows, router]);
+
+  const handleBatchDeliver = useCallback(async () => {
+    if (selectedRows.length === 0) {
+      toast.error("Please select at least one order.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await Promise.all(
+        selectedRows.map((id) =>
+          axios.put("/api/order", {
+            id,
+            deliveryStatus: "delivered",
+          })
+        )
+      );
+      toast.success(`${selectedRows.length} order(s) marked as delivered!`);
+      setSelectedRows([]);
+      router.refresh();
+    } catch (error) {
+      toast.error("Failed to update some orders.");
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedRows, router]);
 
   const handleDeleteOrder = useCallback((row: string) => {
     axios
@@ -95,10 +167,22 @@ const ManageOrdersClient: React.FC<ManageOrdersClientProps> = ({ orders }) => {
         toast.error("Oops! Something went wrong.");
         console.log(error);
       });
-  }, []);
+  }, [router]);
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 220 },
+    {
+      field: "id",
+      headerName: "ID",
+      width: 220,
+      renderCell: (params) => {
+        const id = params.row.id as string | undefined;
+        const shortened =
+          id && typeof id === "string" && id.length > 12
+            ? `${id.slice(0, 8)}...${id.slice(-4)}`
+            : id;
+        return <div className="font-mono text-sm text-slate-800">{shortened}</div>;
+      },
+    },
     { field: "customer", headerName: "Customer Name", width: 130 },
     {
       field: "amount",
@@ -127,7 +211,7 @@ const ManageOrdersClient: React.FC<ManageOrdersClientProps> = ({ orders }) => {
             ) : (
               params.row.paymentStatus === "complete" && (
                 <Status
-                  text="completed"
+                  text="completed" 
                   icon={MdDone}
                   bg="bg-green-200"
                   color="text-green-700"
@@ -173,6 +257,32 @@ const ManageOrdersClient: React.FC<ManageOrdersClientProps> = ({ orders }) => {
         );
       },
     },
+    {
+      field: "paymentConfirmed",
+      headerName: "Payment Confirmed",
+      width: 140,
+      renderCell: (params) => {
+        return (
+          <div>
+            {params.row.paymentConfirmed ? (
+              <Status
+                text="confirmed"
+                icon={MdDone}
+                bg="bg-green-200"
+                color="text-green-700"
+              />
+            ) : (
+              <Status
+                text="awaiting"
+                icon={MdAccessTimeFilled}
+                bg="bg-yellow-200"
+                color="text-yellow-700"
+              />
+            )}
+          </div>
+        );
+      },
+    },
     { field: "date", headerName: "Date", width: 130 },
     {
       field: "action",
@@ -180,7 +290,15 @@ const ManageOrdersClient: React.FC<ManageOrdersClientProps> = ({ orders }) => {
       width: 210,
       renderCell: (params) => {
         return (
-          <div className="flex gap-3 ">
+          <div className="flex gap-2 flex-wrap">
+            {params.row.paymentStatus === "complete" && !params.row.paymentConfirmed && (
+              <ActionButton
+                icon={MdPayments}
+                onClick={() => {
+                  handleConfirmPayment(params.row.id);
+                }}
+              />
+            )}
             <ActionButton
               icon={MdDeliveryDining}
               onClick={() => {
@@ -220,6 +338,38 @@ const ManageOrdersClient: React.FC<ManageOrdersClientProps> = ({ orders }) => {
       <div className="mb-4 mt-8">
         <Heading title="Manage Orders" center />
       </div>
+      
+      {/* Batch Actions */}
+      {selectedRows.length > 0 && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between gap-4">
+          <span className="text-sm text-blue-700 font-semibold whitespace-nowrap">
+            {selectedRows.length} order(s) selected
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={handleBatchDispatch}
+              disabled={isLoading}
+              className="px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 disabled:bg-gray-400"
+            >
+              {isLoading ? "Processing..." : "Dispatch All"}
+            </button>
+            <button
+              onClick={handleBatchDeliver}
+              disabled={isLoading}
+              className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400"
+            >
+              {isLoading ? "Processing..." : "Mark Delivered"}
+            </button>
+            <button
+              onClick={() => setSelectedRows([])}
+              className="px-3 py-1 text-sm bg-gray-400 text-gray-700 rounded hover:bg-gray-500"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+
       <div style={{ height: 600, width: "100%" }}>
         <DataGrid
           rows={rows}
@@ -232,6 +382,10 @@ const ManageOrdersClient: React.FC<ManageOrdersClientProps> = ({ orders }) => {
           pageSizeOptions={[9, 20]}
           checkboxSelection
           disableRowSelectionOnClick
+          onRowSelectionModelChange={(newSelection) => {
+            setSelectedRows(newSelection as string[]);
+          }}
+          rowSelectionModel={selectedRows}
         />
       </div>
       <AlertDialog

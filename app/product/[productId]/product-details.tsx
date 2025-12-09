@@ -26,7 +26,9 @@ export type CartProductType = {
   selectedImg: SelectedImgType;
   quantity: number;
   price: number;
+  remainingStock?: number;
 };
+
 
 export type SelectedImgType = {
   color: string;
@@ -50,6 +52,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
     selectedImg: { ...product.images[0] },
     quantity: 1,
     price: product.price,
+    remainingStock: product.remainingStock ?? product.stock ?? 0,
   });
   const router = useRouter();
 
@@ -77,6 +80,11 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   );
 
   const handleQuantityIncrease = useCallback(() => {
+    const max = product.remainingStock ?? product.stock ?? 99;
+    if (cartProduct.quantity >= max) {
+      return toast.error(`Only ${max} left in stock`);
+    }
+
     if (cartProduct.quantity === 99) return;
 
     setCartProduct((prev) => {
@@ -125,12 +133,24 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
           <div className={`text-xl flex gap-2 sm:w-[50%] mt-1}`}>
             <span className="font-semibold text-sm pt-[5px]">STOCK:</span>
-            <Status
-              text={product.inStock ? "In stock" : "Out of stock"}
-              icon={product.inStock ? MdDone : MdOutlineClose}
-              bg={product.inStock ? "bg-teal-600" : "bg-pink-600"}
-              color="text-white font-normal flex justify-center h-8"
-            />
+            {(() => {
+              const remaining = product.remainingStock ?? product.stock ?? 0;
+              let stockText = "Out of stock";
+              if (product.inStock && remaining > 0) {
+                if (remaining > 20) stockText = "20+ in stock";
+                else if (remaining > 10) stockText = "10+ in stock";
+                else stockText = `${remaining} in stock`;
+              }
+
+              return (
+                <Status
+                  text={stockText}
+                  icon={product.inStock ? MdDone : MdOutlineClose}
+                  bg={product.inStock ? "bg-teal-600" : "bg-pink-600"}
+                  color="text-white font-normal flex justify-center h-8"
+                />
+              );
+            })()}
           </div>
         </div>
         <Horizontal />
@@ -151,12 +171,12 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           {product.list !== product.price && (
             <div className="flex flex-wrap font-normal text-md text-slate-400 gap-2 mb-1">
               <span className="line-through text-2xl">
-                $ {formatPrice(product.list * cartProduct.quantity)}
+                {formatPrice(product.list * cartProduct.quantity)}
               </span>
               <Status
                 text={
                   Math.round(
-                    ((product.list - product.price) / product.price) * 100
+                    ((product.price - product.list) / product.price) * 100
                   ) + "% OFF"
                 }
                 icon={MdDone}
@@ -168,7 +188,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
           <div className="flex gap-4 text-3xl text-slate-600 font-bold">
             <span>Total</span>
             <div>
-              <span>$ </span>
               {formatPrice(product.price * cartProduct.quantity)}
             </div>
           </div>

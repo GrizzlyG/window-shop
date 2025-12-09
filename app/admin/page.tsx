@@ -1,3 +1,4 @@
+import getAdminUser from "@/actions/get-admin-user";
 import getProducts from "@/actions/get-products";
 import Summary from "./summary";
 import getOrders from "@/actions/get-orders";
@@ -7,6 +8,9 @@ import BarGraph from "./bar-graph";
 import getGraphData from "@/actions/get-graph-data";
 
 const Admin = async () => {
+  // This will redirect non-admins to login or home
+  await getAdminUser();
+
   const products = await getProducts({ category: null });
   const orders = await getOrders();
   const users = await getUsers();

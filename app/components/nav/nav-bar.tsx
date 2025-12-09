@@ -35,14 +35,14 @@ const NavBar: React.FC<NavBarPros> = ({ currentUser }) => {
           <div className="flex items-center justify-between sm:px-2 xl:px-0">
             <Link
               href="/"
-              className={`${exo.className} flex items-center text-white opacity-90 font-normal italic text-[1.55rem] sm:text-[1.8rem] hover:scale-105 active:scale-100 transition`}
+              className={`flex items-center text-white opacity-90 font-roboto text-[1.55rem] sm:text-[1.8rem] hover:scale-105 active:scale-100 transition`}
             >
               {path && path.includes("/product") && (
                 <MdArrowBackIos className="text-[1.4rem] sm:text-[1.25rem] mb-1 sm:mb-[1.75px]" />
               )}
-              <span className="text-[1.6rem] sm:text-[1.65rem]">S</span>mart{" "}
+              <span className="text-[1.6rem] sm:text-[1.65rem]">W</span>indow{" "}
               <span className="text-[1.6rem] sm:text-[1.65rem] ml-1">S</span>
-              tore
+              hop
             </Link>
 
             <div className="flex items-center gap-4 md:gap-8 xl:gap-12">

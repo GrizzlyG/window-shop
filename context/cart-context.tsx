@@ -71,13 +71,21 @@ export const CartContextProvider = (props: Props) => {
   }, [cartProducts]);
 
   const handleAddProductToCart = useCallback((product: CartProductType) => {
+    // Ensure we don't add more than available stock
+    const available = product.remainingStock ?? (product as any).stock ?? undefined;
+    let toAdd = { ...product };
+    if (available !== undefined && toAdd.quantity > available) {
+      toAdd.quantity = available;
+      toast.error(`Only ${available} left in stock. Quantity adjusted.`);
+    }
+
     setCartProducts((prev) => {
       let updatedCart;
 
       if (prev) {
-        updatedCart = [...prev, product];
+        updatedCart = [...prev, toAdd];
       } else {
-        updatedCart = [product];
+        updatedCart = [toAdd];
       }
 
       localStorage.setItem("cartItems", JSON.stringify(updatedCart));
@@ -102,9 +110,13 @@ export const CartContextProvider = (props: Props) => {
   const handleCartQuantityIncrease = useCallback(
     (product: CartProductType) => {
       let updatedCart;
-
       if (product.quantity === 99) {
         return toast.error("Oops! Maximun reached.");
+      }
+
+      const available = product.remainingStock ?? (product as any).stock ?? undefined;
+      if (available !== undefined && product.quantity >= available) {
+        return toast.error(`Only ${available} left in stock`);
       }
 
       if (cartProducts) {

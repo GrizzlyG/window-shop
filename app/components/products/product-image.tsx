@@ -25,6 +25,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
           src={cartProduct.selectedImg.image}
           alt={cartProduct.name}
           fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 550px"
           className="object-contain aspect-square"
         />
       </div>
@@ -44,6 +45,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
                 src={image.image}
                 alt={image.color}
                 fill
+                sizes="70px"
                 className="object-contain"
               />
             </div>

@@ -8,7 +8,9 @@ import {
   MdDns,
   MdFormatListBulleted,
   MdLibraryAdd,
+  MdAccountBalance,
 } from "react-icons/md";
+import AdminNotifications from "./admin-notifications";
 import { usePathname } from "next/navigation";
 
 const AdminNav = () => {
@@ -46,6 +48,16 @@ const AdminNav = () => {
               selected={pathname === "/admin/manage-orders"}
             />
           </Link>
+          <Link href={"/admin/manage-bank-details"}>
+            <AdminNavItem
+              label="Bank Details"
+              icon={MdAccountBalance}
+              selected={pathname === "/admin/manage-bank-details"}
+            />
+          </Link>
+          <div className="ml-auto mr-4">
+            <AdminNotifications />
+          </div>
         </div>
       </Container>
     </div>
