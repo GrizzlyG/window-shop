@@ -57,7 +57,11 @@ const OrdersClient: React.FC<OrdersClient> = ({ orders }) => {
   }, []);
 
   const handleHideOrder = (orderId: string) => {
-    setHiddenOrders(prev => new Set([...prev, orderId]));
+    setHiddenOrders(prev => {
+      const newSet = new Set(prev);
+      newSet.add(orderId);
+      return newSet;
+    });
     toast.success("Order removed from view");
   };
 
