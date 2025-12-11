@@ -35,8 +35,6 @@ export default async function getCurrentUser() {
       orders: currentUser.orders.map(order => ({
         ...order,
         createDate: order.createDate?.toISOString() || null,
-        createdAt: order.createdAt.toISOString(),
-        updatedAt: order.updatedAt.toISOString(),
       })),
     };
   } catch (error) {
