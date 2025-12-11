@@ -24,7 +24,7 @@ export async function PUT(request: Request) {
 
   try {
     await db.collection("Settings").updateOne(
-      { _id: "settings" },
+      { _id: "settings" } as any,
       { 
         $set: { 
           nextDeliveryTime: new Date(nextDeliveryTime),

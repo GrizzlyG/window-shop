@@ -66,7 +66,7 @@ export async function PUT(request: Request) {
     if (hostels !== undefined) updateData.hostels = hostels;
     
     await db.collection("Settings").updateOne(
-      { _id: "settings" },
+      { _id: "settings" } as any,
       {
         $set: updateData,
       },

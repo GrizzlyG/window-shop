@@ -21,7 +21,7 @@ export async function PUT(request: Request) {
 
     const db = await getMongoDb();
     await db.collection("Settings").updateOne(
-      { _id: "settings" },
+      { _id: "settings" } as any,
       {
         $set: {
           whatsappNumber,
