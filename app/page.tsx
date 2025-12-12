@@ -77,7 +77,7 @@ export default async function Home({ searchParams }: HomeProps) {
                   <div className="text-5xl mb-4">🛒</div>
                   <h3 className="text-xl font-bold text-white mb-2">No Orders Yet</h3>
                   <p className="text-white/80 mb-4">
-                    You haven't placed any orders yet. Start shopping to see your order history here!
+                    You haven&apos;t placed any orders yet. Start shopping to see your order history here!
                   </p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
                     {/* Total Orders */}
