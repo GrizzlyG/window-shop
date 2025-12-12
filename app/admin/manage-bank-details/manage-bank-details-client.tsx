@@ -146,6 +146,7 @@ export default function ManageBankDetailsClient() {
           <Button
             label={isLoading ? "Saving..." : "Save Bank Details"}
             disabled={isLoading}
+            type="submit"
           />
         </div>
 
