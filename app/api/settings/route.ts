@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import getCurrentUser from "@/actions/get-current-user";
-import { getMongoDb } from "@/libs/mongodb";
+import prisma from "@/libs/prismadb";
 
 export async function GET() {
   try {
-    const db = await getMongoDb();
-    const settings = await db.collection("Settings").findOne({ _id: "settings" } as any);
+    const settings = await prisma.settings.findUnique({
+      where: { id: "settings" },
+    });
 
     if (!settings) {
       return NextResponse.json({
@@ -18,12 +19,14 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      id: settings._id,
+      id: settings.id,
       bankName: settings.bankName || "",
       bankAccountNumber: settings.bankAccountNumber || "",
       accountHolderName: settings.accountHolderName || "",
       hostels: settings.hostels || [],
       spf: settings.spf || 100,
+      nextDeliveryTime: settings.nextDeliveryTime,
+      whatsappNumber: settings.whatsappNumber,
       updatedAt: settings.updatedAt,
     });
   } catch (error) {
@@ -54,8 +57,6 @@ export async function PUT(request: Request) {
     const body = await request.json();
     const { bankName, bankAccountNumber, accountHolderName, hostels } = body;
 
-    const db = await getMongoDb();
-    
     const updateData: any = {
       updatedAt: new Date(),
     };
@@ -65,23 +66,29 @@ export async function PUT(request: Request) {
     if (accountHolderName !== undefined) updateData.accountHolderName = accountHolderName;
     if (hostels !== undefined) updateData.hostels = hostels;
     
-    await db.collection("Settings").updateOne(
-      { _id: "settings" } as any,
-      {
-        $set: updateData,
+    const settings = await prisma.settings.upsert({
+      where: { id: "settings" },
+      update: updateData,
+      create: {
+        id: "settings",
+        bankName: bankName || "",
+        bankAccountNumber: bankAccountNumber || "",
+        accountHolderName: accountHolderName || "",
+        hostels: hostels || [],
+        spf: 100,
       },
-      { upsert: true }
-    );
-
-    const settings = await db.collection("Settings").findOne({ _id: "settings" } as any);
+    });
 
     return NextResponse.json({
-      id: settings?._id,
-      bankName: settings?.bankName || "",
-      bankAccountNumber: settings?.bankAccountNumber || "",
-      accountHolderName: settings?.accountHolderName || "",
-      hostels: settings?.hostels || [],
-      updatedAt: settings?.updatedAt,
+      id: settings.id,
+      bankName: settings.bankName || "",
+      bankAccountNumber: settings.bankAccountNumber || "",
+      accountHolderName: settings.accountHolderName || "",
+      hostels: settings.hostels || [],
+      spf: settings.spf,
+      nextDeliveryTime: settings.nextDeliveryTime,
+      whatsappNumber: settings.whatsappNumber,
+      updatedAt: settings.updatedAt,
     });
   } catch (error) {
     console.error("Error updating settings:", error);

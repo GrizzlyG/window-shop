@@ -22,7 +22,12 @@ export async function POST(request: NextRequest) {
 
     // Upload to Firebase Storage using Admin SDK
     const fileName = `${Date.now()}-${file.name}`;
-    const bucket = getAdminStorage().bucket();
+    const storage = getAdminStorage();
+    const bucket = storage.bucket();
+    
+    console.log("Bucket name:", bucket.name);
+    console.log("Uploading file:", fileName);
+    
     const fileRef = bucket.file(`products/${fileName}`);
     
     // Upload file
@@ -38,6 +43,8 @@ export async function POST(request: NextRequest) {
 
     // Get download URL
     const downloadURL = `https://storage.googleapis.com/${bucket.name}/${fileRef.name}`;
+    
+    console.log("Upload successful:", downloadURL);
 
     return NextResponse.json({
       url: downloadURL,
@@ -45,6 +52,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("Error uploading file:", error);
+    console.error("Error details:", error.message, error.code);
     return NextResponse.json(
       { error: error.message || "Upload failed" },
       { status: 500 }
