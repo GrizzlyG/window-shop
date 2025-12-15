@@ -10,7 +10,9 @@ import toast from "react-hot-toast";
 
 type CartContextType = {
   cartTotalQuantity: number;
-  cartTotalAmount: number;
+  cartTotalAmount: number; // includes DMC for backward compatibility
+  cartSubtotal: number; // excludes DMC
+  cartTotalDmc: number;
   cartProducts: CartProductType[] | null;
   paymentIntent: string | null;
   handleAddProductToCart: (product: CartProductType) => void;
@@ -31,9 +33,9 @@ export const CartContext = createContext<CartContextType | null>(null);
 export const CartContextProvider = (props: Props) => {
   const [cartTotalQuantity, setCartTotalQuantity] = useState(0);
   const [cartTotalAmount, setCartTotalAmount] = useState(0);
-  const [cartProducts, setCartProducts] = useState<CartProductType[] | null>(
-    null
-  );
+  const [cartProducts, setCartProducts] = useState<CartProductType[] | null>(null);
+  const [cartSubtotal, setCartSubtotal] = useState(0);
+  const [cartTotalDmc, setCartTotalDmc] = useState(0);
   const [paymentIntent, setPaymentIntent] = useState<string | null>(null);
 
   useEffect(() => {
@@ -60,24 +62,20 @@ export const CartContextProvider = (props: Props) => {
   useEffect(() => {
     const getTotals = () => {
       if (cartProducts) {
-        const { total, quantity } = cartProducts.reduce(
-          (acc, item) => {
-            const itemTotal = (item.price + (item.dmc || 0)) * item.quantity;
-            acc.total += itemTotal;
-            acc.quantity += item.quantity;
-
-            return acc;
-          },
-          {
-            total: 0,
-            quantity: 0,
-          }
-        );
+        let subtotal = 0;
+        let dmcTotal = 0;
+        let quantity = 0;
+        cartProducts.forEach(item => {
+          subtotal += item.price * item.quantity;
+          dmcTotal += (item.dmc || 0) * item.quantity;
+          quantity += item.quantity;
+        });
+        setCartSubtotal(subtotal);
+        setCartTotalDmc(dmcTotal);
         setCartTotalQuantity(quantity);
-        setCartTotalAmount(total);
+        setCartTotalAmount(subtotal + dmcTotal); // for backward compatibility
       }
     };
-
     getTotals();
   }, [cartProducts]);
 
@@ -194,6 +192,8 @@ export const CartContextProvider = (props: Props) => {
   const value = {
     cartTotalQuantity,
     cartTotalAmount,
+    cartSubtotal,
+    cartTotalDmc,
     cartProducts,
     paymentIntent,
     handleAddProductToCart,

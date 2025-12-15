@@ -28,7 +28,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   currentUser,
 }) => {
   const router = useRouter();
-  const { cartTotalAmount, handleClearCart, cartProducts } = useCart();
+  const { cartSubtotal, cartTotalDmc, handleClearCart, cartProducts } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [bankDetails, setBankDetails] = useState<BankDetails | null>(null);
   const [showGuestBanner, setShowGuestBanner] = useState(!currentUser);
@@ -40,7 +40,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     hostel: "",
   });
 
-  const totalWithSpf = cartTotalAmount + spf;
+  // Add DMC to SPF silently
+  const spfWithDmc = spf + cartTotalDmc;
+  const totalWithSpf = cartSubtotal + spfWithDmc;
   const formattedPrice = formatPrice(totalWithSpf);
 
   // Fetch bank details on mount
@@ -242,11 +244,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       <div className="py-4 border-t border-gray-300 mt-6">
         <div className="flex justify-between text-slate-600 mb-2">
           <span>Subtotal:</span>
-          <span>{formatPrice(cartTotalAmount)}</span>
+          <span>{formatPrice(cartSubtotal)}</span>
         </div>
         <div className="flex justify-between text-slate-600 mb-2">
           <span>Sorting & Packaging Fee:</span>
-          <span>{formatPrice(spf)}</span>
+          <span>{formatPrice(spfWithDmc)}</span>
         </div>
         <div className="flex justify-between text-slate-600 mb-2">
           <span>Delivery Fee:</span>

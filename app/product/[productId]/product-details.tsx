@@ -43,7 +43,7 @@ const Horizontal = () => {
 };
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ product, spf }) => {
-  console.log("Product in client component:", { id: product.id, name: product.name, price: product.price, dmc: product.dmc });
+  //console.log("Product in client component:", { id: product.id, name: product.name, price: product.price, dmc: product.dmc });
   
   const { cartProducts, handleAddProductToCart } = useCart();
   const [isProductInCart, setIsProductInCart] = useState<boolean>(false);
@@ -193,14 +193,14 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, spf }) => {
           <div className="flex gap-4 text-3xl text-slate-600 font-bold">
             <span>Price</span>
             <div>
-              {formatPrice(product.price + (product.dmc || 0))}
+              {formatPrice(product.price)}
             </div>
           </div>
           <div className="flex gap-4 text-2xl text-slate-700 font-bold mt-2">
-            <span>Total</span>
+            {/* <span>Total</span>
             <div>
               {formatPrice((product.price + (product.dmc || 0) + (spf || 0)) * cartProduct.quantity)}
-            </div>
+            </div> */}
           </div>
           <Horizontal />
 

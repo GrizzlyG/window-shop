@@ -110,7 +110,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ data }) => {
         {/* Price */}
         <div className="flex items-center gap-1 mt-3">
           <div className="font-semibold text-[1.3rem]">
-            {formatPrice(data.price + (data.dmc || 0))}
+            {formatPrice(data.price)}
           </div>
         </div>
 

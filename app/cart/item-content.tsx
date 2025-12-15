@@ -51,7 +51,7 @@ const ItemContent: React.FC<ItemContentProps> = ({ item }) => {
         </div>
       </div>
       <div className="justify-self-center pl-4 sm:pl-0">
-        {formatPrice(item.price + (item.dmc || 0))}
+        {formatPrice(item.price)}
       </div>
       <div className="justify-self-center pl-4 sm:pl-0">
         <SetQuantity
@@ -63,7 +63,7 @@ const ItemContent: React.FC<ItemContentProps> = ({ item }) => {
         />
       </div>
       <div className="justify-self-end font-semibold">
-        {formatPrice((item.price + (item.dmc || 0)) * item.quantity)}
+        {formatPrice(item.price * item.quantity)}
       </div>
     </div>
   );
