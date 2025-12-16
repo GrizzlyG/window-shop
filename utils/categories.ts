@@ -13,4 +13,5 @@ export const categories = [
   { label: "stationeries", icon: Pencil },
   { label: "personal care", icon: Sparkles },
   { label: "tech", icon: Laptop },
+  { label: "sugar rush", icon: Sparkles },
 ];
