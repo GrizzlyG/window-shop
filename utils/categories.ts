@@ -1,40 +1,16 @@
 import { Store, Wine, Pizza, Coffee, UtensilsCrossed, Pencil, Sparkles, SprayCan, Laptop } from "lucide-react";
 
 export const categories = [
-  {
-    label: "All",
-    icon: Store,
-  },
-  {
-    label: "Chilled drinks",
-    icon: Wine,
-  },
-  {
-    label: "Quick bites",
-    icon: Pizza,
-  },
-  {
-    label: "Breakfast",
-    icon: Coffee,
-  },
-  {
-    label: "To cook",
-    icon: UtensilsCrossed,
-  },
-  {
-    label: "Stationeries",
-    icon: Pencil,
-  },
-  {
-    label: "Personal care",
-    icon: Sparkles,
-  },
-  {
-    label: "Cleaning",
-    icon: SprayCan,
-  },
-  {
-    label: "Tech",
-    icon: Laptop,
-  },
+  { label: "All", icon: Store },
+  { label: "chilled drinks", icon: Wine },
+  { label: "pos", icon: Laptop },
+  { label: "garri", icon: UtensilsCrossed },
+  { label: "bread", icon: Pizza },
+  { label: "indomie", icon: UtensilsCrossed },
+  { label: "spagh", icon: UtensilsCrossed },
+  { label: "stew", icon: Coffee },
+  { label: "cooked", icon: Pizza },
+  { label: "stationeries", icon: Pencil },
+  { label: "personal care", icon: Sparkles },
+  { label: "tech", icon: Laptop },
 ];

@@ -22,8 +22,6 @@ type SummaryDataType = {
 };
 
 const Summary: React.FC<SummaryProps> = ({ products, orders, users, userRole }) => {
-    // Debug: print all orders received by Summary
-    console.log('Orders array received by Summary:', orders);
   const isManager = userRole === "MANAGER";
   const [summaryData, setSummaryData] = useState<SummaryDataType>({
     sale: {
@@ -126,13 +124,11 @@ const Summary: React.FC<SummaryProps> = ({ products, orders, users, userRole }) 
             ((order.products as any[])?.reduce((dmcAcc, product) => {
               return dmcAcc + ((product.dmc || 0) * (product.quantity || 0));
             }, 0) || 0);
-          console.log('Order DMC:', { orderId: (order as any).id, totalDmc: (order as any).totalDmc, calculated: orderDmc, paymentConfirmed: order.paymentConfirmed });
           return acc + orderDmc;
         }
         return acc;
       }, 0);
       
-      console.log('Final Total DMC:', totalDmc);
 
 
       // To Reimburse: sum of all paid, non-reimbursed order totals minus their DMC and SPF
