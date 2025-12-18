@@ -40,7 +40,7 @@ const Footer: React.FC<FooterProps> = ({ whatsappNumber = null }) => {
                 className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition font-medium mb-2"
               >
                 <MessageCircle size={20} />
-                Chat on WhatsApp
+                Chat me up on WhatsApp
               </button>
             ) : (
               <Link href="#" className={highlight}>
@@ -51,7 +51,7 @@ const Footer: React.FC<FooterProps> = ({ whatsappNumber = null }) => {
               Shipping Policy
             </Link>
             <Link href="/faq" className={highlight}>
-              FAQs
+              FAQs 
             </Link>
             <Link href="/privacy-policy" className={highlight}>
               Privacy Policy
