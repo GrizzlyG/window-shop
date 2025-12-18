@@ -53,6 +53,12 @@ const Footer: React.FC<FooterProps> = ({ whatsappNumber = null }) => {
             <Link href="/faq" className={highlight}>
               FAQs
             </Link>
+            <Link href="/privacy-policy" className={highlight}>
+              Privacy Policy
+            </Link>
+            <Link href="/terms-of-service" className={highlight}>
+              Terms of Service
+            </Link>
           </FooterList>
 
           <div className="w-full md:w-1/3 mb-6 md:mb-0">
